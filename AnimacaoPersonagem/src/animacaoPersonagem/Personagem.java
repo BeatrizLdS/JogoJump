@@ -11,6 +11,7 @@ public class Personagem {
 	private BufferedImage cicloCorrida[];
 	private BufferedImage cicloParado [];
 	private BufferedImage cicloPulo[];
+	private BufferedImage cicloMorrendo [];
 	
 	private int indiceImagemAtual = 0;
 	private int timer = 0;               // usado p controlar a quantidade de frames
@@ -24,19 +25,26 @@ public class Personagem {
 	
 	private int ultimaDirecao;
 	private int direcao;
+	
 	private boolean pulando;
+	
+	private boolean morto;
 	
 	public Personagem() {
 		
 		cicloCorrida = new BufferedImage[15];
 		cicloParado = new BufferedImage[15];
 		cicloPulo = new BufferedImage[15];
+		cicloMorrendo = new BufferedImage[15];
+		
 		velocidade = 3;
 		direcao = 0;
 		ultimaDirecao = 1; 
 		x = 0;
 		y = 50;
+		
 		pulando = false;
+		morto = false;
 		
 		String image;
 		
@@ -84,81 +92,126 @@ public class Personagem {
 					
 		}
 		
+		//CARREGA IMAGENS PERSONAGEM MORRENDO
+		for (int i=0; i<15; i++) {  //carrega as imagens da corrida
+					
+			try {
+				image = "imagem/Dead ("+ (i+1)+").png";
+				//System.out.println("Carregou imagem: "+ image);
+				cicloMorrendo[i] = ImageIO.read(new File(image));
+			} catch (IOException e) {
+				System.out.println("Não foi possível carregar a imagem");
+				e.printStackTrace();
+			}
+					
+		}
+		
 	}
 	
 	public void atualizar() {
-		
+		System.out.println(morto);
 		timer++;
-		if (pulando) {
+		if(!morto) { //se o pesonagem não ta morto
+			if (pulando) {
+				
+				if (timer >= numeroDeFrames) {      //troca a imagem a cada 3 frames
+					indiceImagemAtual ++;
+					if (indiceImagemAtual == 15) { //troca as imagens
+						indiceImagemAtual = 0;
+						pulando = false;
+					}
+					
+					timer = 0;
+				}
+				if(indiceImagemAtual < 6) {
+					y -= 2;
+				}else if(indiceImagemAtual > 8){
+					y += 2;
+				}
+				
+					
+			}else {
+			
+				if (timer >= numeroDeFrames) {      //troca a imagem a cada 3 frames
+					indiceImagemAtual ++;
+					if (indiceImagemAtual == 15) { //troca as imagens
+						indiceImagemAtual = 0;
+					}
+					
+					timer = 0;
+					
+					//movimento automático
+					//if (x<940) {
+					//	x++;
+					//}
+					//else if (x == 940 && y < 620) {
+					//	y++;
+					//}
+					
+				}
+			}
+			if (direcao == 1) {
+				x += velocidade;
+			}else if (direcao == -1) {
+				x -= velocidade;
+			}
+			
+		}else { //caso o personagem esteja morto
 			
 			if (timer >= numeroDeFrames) {      //troca a imagem a cada 3 frames
 				indiceImagemAtual ++;
-				if (indiceImagemAtual == 15) { //troca as imagens
-					indiceImagemAtual = 0;
-					pulando = false;
-				}
 				
+				if (indiceImagemAtual == 15) {  //troca as imagens
+					indiceImagemAtual = 14;
+				}
 				timer = 0;
 			}
-			if(indiceImagemAtual < 6) {
-				y -= 2;
-			}else if(indiceImagemAtual > 8){
-				y += 2;
-			}
 			
-				
-		}else {
-		
-			if (timer >= numeroDeFrames) {      //troca a imagem a cada 3 frames
-				indiceImagemAtual ++;
-				if (indiceImagemAtual == 15) { //troca as imagens
-					indiceImagemAtual = 0;
-				}
-				
-				timer = 0;
-				
-				//movimento automático
-				//if (x<940) {
-				//	x++;
-				//}
-				//else if (x == 940 && y < 620) {
-				//	y++;
-				//}
-				
-			}
 		}
-			
-		if (direcao == 1) {
-			x += velocidade;
-		}else if (direcao == -1) {
-			x -= velocidade;
-		}
-			
-		
+				
 	}
 	
 	public void pintar(Graphics2D g) {
 		//System.out.println("pintando imagens!");
-		if (pulando) {
+		if (morto) {
+			if (ultimaDirecao == 1) {
+				g.drawImage(
+						cicloMorrendo[indiceImagemAtual], //a imagem
+						x, y,                            //posicao x e y da imagem
+						x + largura, y + altura,     	 //posicao + tamanho da imagem
+						0, 0,							 //canto da imagem original
+						cicloMorrendo[indiceImagemAtual].getWidth(), cicloMorrendo[indiceImagemAtual].getHeight(),//tamanho da imagem original
+						null);
+			} else if (ultimaDirecao == -1) {
+				g.drawImage(
+						cicloMorrendo[indiceImagemAtual], //a imagem
+						x, y,                            //posicao x e y da imagem
+						x + largura, y + altura,     	 //posicao + tamanho da imagem
+						cicloMorrendo[indiceImagemAtual].getWidth(), 0,							 //canto da imagem original
+						0, cicloMorrendo[indiceImagemAtual].getHeight(),//tamanho da imagem original
+						null);
+			}
+			
+		} else if (pulando) {
 			if (ultimaDirecao == 1) {
 				g.drawImage(
 						cicloPulo[indiceImagemAtual], //a imagem
 						x, y,                            //posicao x e y da imagem
 						x + largura, y + altura,     	 //posicao + tamanho da imagem
 						0, 0,							 //canto da imagem original
-						cicloCorrida[indiceImagemAtual].getWidth(), cicloCorrida[indiceImagemAtual].getHeight(),//tamanho da imagem original
+						cicloPulo[indiceImagemAtual].getWidth(), cicloPulo[indiceImagemAtual].getHeight(),//tamanho da imagem original
 						null);
-			}else if (ultimaDirecao == -1) {
+			} else if (ultimaDirecao == -1) {
 				g.drawImage(
 						cicloPulo[indiceImagemAtual], //a imagem
 						x, y,                            //posicao x e y da imagem
 						x + largura, y + altura,     	 //posicao + tamanho da imagem
-						cicloCorrida[indiceImagemAtual].getWidth(), 0,							 //canto da imagem original
-						0, cicloCorrida[indiceImagemAtual].getHeight(),//tamanho da imagem original
+						cicloPulo[indiceImagemAtual].getWidth(), 0,							 //canto da imagem original
+						0, cicloPulo[indiceImagemAtual].getHeight(),//tamanho da imagem original
 						null);
 			}
 			
-		}else if (ultimaDirecao == 1) {
+		} else if (ultimaDirecao == 1) {
 			if (direcao == 0) {
 				numeroDeFrames = 4;
 				g.drawImage(
@@ -166,7 +219,7 @@ public class Personagem {
 						x, y,                            //posicao x e y da imagem
 						x + largura, y + altura,     	 //posicao + tamanho da imagem
 						0, 0,							 //canto da imagem original
-						cicloCorrida[indiceImagemAtual].getWidth(), cicloCorrida[indiceImagemAtual].getHeight(),//tamanho da imagem original
+						cicloParado[indiceImagemAtual].getWidth(), cicloParado[indiceImagemAtual].getHeight(),//tamanho da imagem original
 						null);
 			}else {
 				numeroDeFrames = 2;
@@ -186,8 +239,8 @@ public class Personagem {
 						cicloParado[indiceImagemAtual], //a imagem
 						x, y,                            //posicao x e y da imagem
 						x + largura, y + altura,     	 //posicao + tamanho da imagem
-						cicloCorrida[indiceImagemAtual].getWidth(), 0,							 //canto da imagem original
-						0, cicloCorrida[indiceImagemAtual].getHeight(),//tamanho da imagem original
+						cicloParado[indiceImagemAtual].getWidth(), 0,							 //canto da imagem original
+						0, cicloParado[indiceImagemAtual].getHeight(),//tamanho da imagem original
 						null);
 			}else {
 				numeroDeFrames = 2;
@@ -219,6 +272,11 @@ public class Personagem {
 			numeroDeFrames = 3;
 			indiceImagemAtual = 0;
 		}
+	}
+	
+	public void morra () {
+		morto = true;
+		indiceImagemAtual = 0;
 	}
 	
 }

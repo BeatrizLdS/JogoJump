@@ -79,13 +79,17 @@ public class Canvas extends JPanel implements Runnable, KeyListener{   //classe 
 			
 			p1.setDirecao(1);
 			
-		}else if (e.getKeyCode() == KeyEvent.VK_A) { //esuqerda
+		} else if (e.getKeyCode() == KeyEvent.VK_A) { //esuqerda
 			
 			p1.setDirecao(-1);
 			
-		}else if(e.getKeyCode() == KeyEvent.VK_W) {
+		} else if(e.getKeyCode() == KeyEvent.VK_W) {
 			
 			p1.iniciaPulo();
+			
+		} else if(e.getKeyCode() == KeyEvent.VK_M) {
+			
+			p1.morra();
 			
 		}
 		
