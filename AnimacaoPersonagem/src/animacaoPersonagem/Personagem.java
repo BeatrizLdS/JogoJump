@@ -139,15 +139,6 @@ public class Personagem {
 					}
 					
 					timer = 0;
-					
-					//movimento automático
-					//if (x<940) {
-					//	x++;
-					//}
-					//else if (x == 940 && y < 620) {
-					//	y++;
-					//}
-					
 				}
 			}
 			if (direcao == 1) {
@@ -275,7 +266,11 @@ public class Personagem {
 	}
 	
 	public void morra () {
-		morto = true;
+		if(morto) {
+			morto = false;
+		}else {
+			morto = true;
+		}
 		indiceImagemAtual = 0;
 	}
 	
